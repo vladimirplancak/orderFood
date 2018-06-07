@@ -14,6 +14,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using WebApiJwt.Core;
+using WebApiJwt.Core.Repositories;
+using WebApiJwt.Interfaces;
+using WebApiJwt.Interfaces.Repositories;
 using WebApiJwt.Resources;
 
 namespace WebApiJwt
@@ -36,7 +40,7 @@ namespace WebApiJwt
             });
             
             // ===== Add Identity ========
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
             
@@ -62,6 +66,9 @@ namespace WebApiJwt
                         ClockSkew = TimeSpan.Zero // remove delay of token when expire
                     };
                 });
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
 
             // ===== Add MVC ========
             services.AddMvc();

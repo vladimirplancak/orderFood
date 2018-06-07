@@ -11,19 +11,21 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using WebApiJwt.Core;
+using WebApiJwt.Resources.ModelsDto;
 
 namespace WebApiJwt.Controllers
 {
     [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
 
         public AccountController(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             IConfiguration configuration
             )
         {
@@ -49,7 +51,7 @@ namespace WebApiJwt.Controllers
         [HttpPost]
         public async Task<object> Register([FromBody] RegisterDto model)
         {
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 UserName = model.Email, 
                 Email = model.Email
@@ -64,15 +66,8 @@ namespace WebApiJwt.Controllers
             
             throw new ApplicationException("UNKNOWN_ERROR");
         }
-        
-        [Authorize]
-        [HttpGet]
-        public async Task<object> Protected()
-        {
-            return "Protected area";
-        }
-        
-        private async Task<object> GenerateJwtToken(string email, IdentityUser user)
+
+        private async Task<object> GenerateJwtToken(string email, ApplicationUser user)
         {
             var claims = new List<Claim>
             {
@@ -94,26 +89,6 @@ namespace WebApiJwt.Controllers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-        
-        public class LoginDto
-        {
-            [Required]
-            public string Email { get; set; }
-
-            [Required]
-            public string Password { get; set; }
-
-        }
-        
-        public class RegisterDto
-        {
-            [Required]
-            public string Email { get; set; }
-
-            [Required]
-            [StringLength(100, ErrorMessage = "PASSWORD_MIN_LENGTH", MinimumLength = 6)]
-            public string Password { get; set; }
         }
     }
 }

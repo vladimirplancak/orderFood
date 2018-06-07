@@ -11,9 +11,10 @@ using WebApiJwt.Core;
 namespace WebApiJwt.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180607084551_AddedOrderMOdel")]
+    partial class AddedOrderMOdel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -185,6 +186,8 @@ namespace WebApiJwt.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("ApplicationUserId");
+
+                    b.Property<Guid>("ApplicatuionUserId");
 
                     b.Property<DateTime>("CreatedAt");
 
