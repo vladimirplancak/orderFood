@@ -8,10 +8,9 @@ namespace WebApiJwt.Interfaces.Repositories
 {
     public interface IOrderRepository
     {
-        List<Order> Get();
-        Order Get(int id);
+        IQueryable<Order> Get(bool includeDetails = false);
+        Order Get(int id, bool includeDetails = false);
         Order Save(Order order);
-        Order Update(Order order);
         void Delete(Order order);
     }
 }

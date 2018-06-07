@@ -14,5 +14,10 @@ namespace WebApiJwt.Resources.ModelsDto
         [Required]
         [StringLength(100, ErrorMessage = "PASSWORD_MIN_LENGTH", MinimumLength = 6)]
         public string Password { get; set; }
+
+        [MinLength(5)]
+        [MaxLength(100)]
+        [Required]
+        public string FullName { get; set; }
     }
 }
