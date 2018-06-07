@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApiJwt.Core;
+using WebApiJwt.Core.Models;
 using WebApiJwt.Core.Repositories;
 using WebApiJwt.Interfaces;
 using WebApiJwt.Interfaces.Repositories;
-using WebApiJwt.Resources.Models;
 using WebApiJwt.Resources.ModelsDto;
 
 namespace WebApiJwt.Controllers

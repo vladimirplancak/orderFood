@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebApiJwt.Resources.Models;
+using WebApiJwt.Core.Models;
 
 namespace WebApiJwt.Interfaces.Repositories
 {

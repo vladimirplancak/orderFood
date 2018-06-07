@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using WebApiJwt.Resources.Models;
+using WebApiJwt.Core.Models;
 
 namespace WebApiJwt.Core
 {

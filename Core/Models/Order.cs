@@ -2,7 +2,7 @@
 using WebApiJwt.Core;
 using WebApiJwt.Resources.ModelsDto;
 
-namespace WebApiJwt.Resources.Models
+namespace WebApiJwt.Core.Models
 {
     public class Order
     {
