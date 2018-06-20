@@ -77,7 +77,8 @@ namespace WebApiJwt
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(
             IApplicationBuilder app, 
-            IHostingEnvironment env
+            IHostingEnvironment env,
+            IServiceProvider serviceProvider
         )
         {
             if (env.IsDevelopment())
@@ -89,8 +90,47 @@ namespace WebApiJwt
             app.UseAuthentication();
             app.UseMvc();
 
-            // ===== Create tables ======
-            //dbContext.Database.EnsureCreated();
+            CreateRoles(serviceProvider).Wait();
+        }
+
+        private async Task CreateRoles(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            string[] roleNames = { "Admin", "User" };
+            IdentityResult roleResult;
+
+            foreach (string roleName in roleNames)
+            {
+                bool roleExist = await roleManager.RoleExistsAsync(roleName);
+
+                if (!roleExist)
+                    roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));          
+            }
+
+            string masterUserName = Configuration["MasterUserName"];
+            string masterUserPassword = Configuration["MasterUserPassword"];
+
+            ApplicationUser powerUser = new ApplicationUser
+            {
+                FullName = masterUserName,
+                UserName = masterUserName,
+                Email = masterUserName
+            };
+
+            bool userExist = await userManager.FindByEmailAsync(masterUserName) != null;
+
+            if (!userExist)
+            {
+                IdentityResult createdResult = await userManager.CreateAsync(powerUser, masterUserPassword);
+
+                if (createdResult.Succeeded)
+                    await userManager.AddToRoleAsync(powerUser, "Admin");
+                else
+                    //TODO: Add propper exception.
+                    throw new NotImplementedException();
+            }
         }
     }
 }
