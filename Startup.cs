@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,12 +9,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.Swagger;
 using WebApiJwt.Core;
 using WebApiJwt.Core.Repositories;
 using WebApiJwt.Interfaces;
@@ -72,6 +76,27 @@ namespace WebApiJwt
 
             // ===== Add MVC ========
             services.AddMvc();
+            
+
+            services.AddSwaggerGen(c => {
+                c.SwaggerDoc("v1", new Info
+                {
+                    Version = "v1",
+                    Title = "Order Food Api",
+                    Description = "This is order food api",
+                    TermsOfService = "None",
+                    Contact = new Contact()
+                    {
+                        Name = "Bagofbones",
+                        Email = "bagofbones@mail.com",
+                        Url = "https://example.com/"
+                    }
+                });
+
+                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                var xmlPath = Path.Combine(basePath, "WebApiJwt.xml");
+                c.IncludeXmlComments(xmlPath);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -90,10 +115,16 @@ namespace WebApiJwt
             app.UseAuthentication();
             app.UseMvc();
 
-            CreateRoles(serviceProvider).Wait();
+            //Swagger configuration
+            app.UseSwagger();
+            app.UseSwaggerUI(c => {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+
+            CreateRolesAndDefaultUser(serviceProvider).Wait();
         }
 
-        private async Task CreateRoles(IServiceProvider serviceProvider)
+        private async Task CreateRolesAndDefaultUser(IServiceProvider serviceProvider)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();

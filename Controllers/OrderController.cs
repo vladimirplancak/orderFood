@@ -30,6 +30,10 @@ namespace WebApiJwt.Controllers
             _unitOfWork = unitOfWork;
         }
 
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <returns>Return orders</returns>
         [Route("api/Order")]
         [HttpGet]
         public IActionResult GetOrders()
