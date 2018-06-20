@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using WebApiJwt.Core;
@@ -33,6 +34,13 @@ namespace WebApiJwt.Controllers
             _signInManager = signInManager;
             _configuration =     configuration;
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public IActionResult GetUsers()
+        {
+            return Ok(_userManager.Users.ToList());
+        }
         
         [HttpPost]
         public async Task<object> Login([FromBody] LoginDto model)
@@ -42,9 +50,11 @@ namespace WebApiJwt.Controllers
             if (result.Succeeded)
             {
                 var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
-                return await GenerateJwtToken(model.Email, appUser);
+                var roles = await _userManager.GetRolesAsync(appUser);
+
+                return await GenerateJwtToken(model.Email, appUser, roles);
             }
-            
+
             throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
         }
        
@@ -69,14 +79,19 @@ namespace WebApiJwt.Controllers
             throw new ApplicationException("UNKNOWN_ERROR");
         }
 
-        private async Task<object> GenerateJwtToken(string email, ApplicationUser user)
+        private async Task<object> GenerateJwtToken(string email, ApplicationUser user, IList<string> roles = null)
         {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
             };
+
+            foreach(string role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
