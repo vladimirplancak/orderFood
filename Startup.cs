@@ -74,9 +74,18 @@ namespace WebApiJwt
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IOrderRepository, OrderRepository>();
 
-            // ===== Add MVC ========
-            services.AddMvc();
-            
+
+            if (bool.Parse(Configuration["AuthenticationDisabled"]))
+            {
+                services.AddMvc(opts =>
+                {
+                    opts.Filters.Add(new AllowAnonymousFilter());
+                });
+            }
+            else
+            {
+                services.AddMvc();
+            }            
 
             services.AddSwaggerGen(c => {
                 c.SwaggerDoc("v1", new Info
