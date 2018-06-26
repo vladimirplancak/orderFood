@@ -121,6 +121,8 @@ namespace WebApiJwt
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
 
+            //TODO: Think of better way of inserting default user.
+            //Migrations are not working on new databases, if below method is uncommented.
             CreateRolesAndDefaultUser(serviceProvider).Wait();
         }
 
