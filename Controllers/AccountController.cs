@@ -21,18 +21,21 @@ namespace WebApiJwt.Controllers
     public class AccountController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
+            RoleManager<IdentityRole> roleManager,
             IConfiguration configuration
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _configuration =     configuration;
+            _roleManager = roleManager;
+            _configuration = configuration;
         }
 
         [Authorize(Roles = "Admin")]
@@ -40,6 +43,23 @@ namespace WebApiJwt.Controllers
         public IActionResult GetUsers()
         {
             return Ok(_userManager.Users.ToList());
+        }
+
+        //TODO: Needs testing.
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{userId}")]
+        public async Task<IActionResult> AssignUserToRoleAsync(string userId, [FromBody]string toRole)
+        {
+            var userToAssign = _userManager.Users.FirstOrDefault(u => u.Id.Equals(userId));
+
+            if (!(await _roleManager.RoleExistsAsync(toRole)))
+                return BadRequest($"Role: { toRole } does not exist");
+            if (userToAssign == null)
+                return NotFound($"User for id: { userId } - not found");
+
+            await _userManager.AddToRoleAsync(userToAssign, toRole);
+
+            return NoContent();
         }
         
         [HttpPost]
